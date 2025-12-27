@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen URL Abuse Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Lumen URL Abuse Monitor</h1>
+            <p class="subtitle">Monitor your URLs for DMCA and takedown notices using the Lumen Database API</p>
+        </header>
+
+        <main>
+            <!-- Settings Section -->
+            <section class="card settings-section">
+                <h2>⚙️ API Settings</h2>
+                <div class="form-group">
+                    <label for="api-key">Lumen API Key</label>
+                    <div class="input-with-button">
+                        <input type="password" id="api-key" placeholder="Enter your Lumen API authentication token">
+                        <button type="button" id="toggle-key" class="btn btn-secondary">Show</button>
+                    </div>
+                    <small>Get your API key by emailing <a href="mailto:team@lumendatabase.org">team@lumendatabase.org</a></small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="update-days">Update Frequency (Days)</label>
+                        <input type="number" id="update-days" min="0" max="365" value="0" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="update-hours">Update Frequency (Hours)</label>
+                        <input type="number" id="update-hours" min="0" max="23" value="1" placeholder="1">
+                    </div>
+                </div>
+                <p class="frequency-display">Checking every: <span id="frequency-text">1 hour(s)</span></p>
+
+                <button type="button" id="save-settings" class="btn btn-primary">Save Settings</button>
+                <span id="settings-status" class="status-message"></span>
+            </section>
+
+            <!-- Add URL Section -->
+            <section class="card add-url-section">
+                <h2>➕ Add URL to Monitor</h2>
+                <div class="form-group">
+                    <label for="new-url">Website URL</label>
+                    <div class="input-with-button">
+                        <input type="url" id="new-url" placeholder="https://example.com/page">
+                        <button type="button" id="add-url" class="btn btn-primary">Add URL</button>
+                    </div>
+                </div>
+                <span id="add-url-status" class="status-message"></span>
+            </section>
+
+            <!-- Monitored URLs Section -->
+            <section class="card urls-section">
+                <div class="section-header">
+                    <h2>📋 Monitored URLs</h2>
+                    <div class="header-actions">
+                        <button type="button" id="check-all" class="btn btn-secondary">Check All Now</button>
+                        <button type="button" id="clear-all" class="btn btn-danger">Clear All</button>
+                    </div>
+                </div>
+
+                <div id="urls-list" class="urls-list">
+                    <p class="empty-state">No URLs added yet. Add a URL above to start monitoring.</p>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card results-section">
+                <h2>📊 Analysis Results</h2>
+                <div id="results-container" class="results-container">
+                    <p class="empty-state">No analysis results yet. Add URLs and click "Check All Now" to analyze.</p>
+                </div>
+            </section>
+
+            <!-- Auto-update Status -->
+            <section class="card status-section">
+                <h2>🔄 Auto-Update Status</h2>
+                <div class="status-info">
+                    <p>Status: <span id="auto-update-status" class="status-badge status-stopped">Stopped</span></p>
+                    <p>Next check: <span id="next-check-time">N/A</span></p>
+                    <p>Last check: <span id="last-check-time">Never</span></p>
+                </div>
+                <div class="status-actions">
+                    <button type="button" id="start-auto" class="btn btn-success">Start Auto-Update</button>
+                    <button type="button" id="stop-auto" class="btn btn-danger" disabled>Stop Auto-Update</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Powered by <a href="https://lumendatabase.org" target="_blank">Lumen Database API</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
