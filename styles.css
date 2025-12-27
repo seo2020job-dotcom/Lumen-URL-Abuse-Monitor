@@ -85,6 +85,23 @@ header h1 {
     margin-bottom: 0;
 }
 
+/* Static header for non-collapsible cards */
+.card-header-static {
+    padding: 20px 24px 0 24px;
+}
+
+.card-header-static h2 {
+    margin-bottom: 0;
+}
+
+.results-card {
+    padding: 0;
+}
+
+.results-card .card-content {
+    padding: 16px 24px 24px 24px;
+}
+
 .collapse-icon {
     font-size: 0.9rem;
     color: var(--text-muted);

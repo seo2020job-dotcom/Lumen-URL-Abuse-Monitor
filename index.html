@@ -14,40 +14,25 @@
         </header>
 
         <main>
-            <!-- Settings Section -->
-            <section class="card collapsible">
-                <div class="card-header" onclick="toggleSection(this)">
-                    <h2>⚙️ API Settings</h2>
-                    <span class="collapse-icon">▼</span>
+            <!-- Results Section (First, Not Collapsible) -->
+            <section class="card results-card">
+                <div class="card-header-static">
+                    <h2>📊 Analysis Results</h2>
                 </div>
                 <div class="card-content">
-                    <div class="form-group">
-                        <label for="api-key">Lumen API Key</label>
-                        <div class="input-with-button">
-                            <input type="password" id="api-key" placeholder="Enter your Lumen API authentication token">
-                            <button type="button" id="toggle-key" class="btn btn-secondary">Show</button>
-                        </div>
+                    <!-- Search Box -->
+                    <div class="form-group search-box">
+                        <input type="text" id="results-search" placeholder="🔍 Search by URL...">
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="update-days">Update Frequency (Days)</label>
-                            <input type="number" id="update-days" min="0" max="365" value="0" placeholder="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="update-hours">Update Frequency (Hours)</label>
-                            <input type="number" id="update-hours" min="0" max="23" value="1" placeholder="1">
-                        </div>
+                    <div id="results-container" class="results-container">
+                        <p class="empty-state">No analysis results yet. Add URLs and click "Check All Now" to analyze.</p>
                     </div>
-                    <p class="frequency-display">Checking every: <span id="frequency-text">1 hour(s)</span></p>
-
-                    <button type="button" id="save-settings" class="btn btn-primary">Save Settings</button>
-                    <span id="settings-status" class="status-message"></span>
                 </div>
             </section>
 
             <!-- Add URL Section -->
-            <section class="card collapsible">
+            <section class="card collapsible collapsed">
                 <div class="card-header" onclick="toggleSection(this)">
                     <h2>➕ Add URLs to Monitor</h2>
                     <span class="collapse-icon">▼</span>
@@ -80,8 +65,27 @@ https://example.com/page3"></textarea>
                 </div>
             </section>
 
+            <!-- Auto-update Status -->
+            <section class="card collapsible collapsed">
+                <div class="card-header" onclick="toggleSection(this)">
+                    <h2>🔄 Auto-Update Status</h2>
+                    <span class="collapse-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <div class="status-info">
+                        <p>Status: <span id="auto-update-status" class="status-badge status-stopped">Stopped</span></p>
+                        <p>Next check: <span id="next-check-time">N/A</span></p>
+                        <p>Last check: <span id="last-check-time">Never</span></p>
+                    </div>
+                    <div class="status-actions">
+                        <button type="button" id="start-auto" class="btn btn-success">Start Auto-Update</button>
+                        <button type="button" id="stop-auto" class="btn btn-danger" disabled>Stop Auto-Update</button>
+                    </div>
+                </div>
+            </section>
+
             <!-- Monitored URLs Section -->
-            <section class="card collapsible">
+            <section class="card collapsible collapsed">
                 <div class="card-header" onclick="toggleSection(this)">
                     <h2>📋 Monitored URLs</h2>
                     <span class="collapse-icon">▼</span>
@@ -98,40 +102,35 @@ https://example.com/page3"></textarea>
                 </div>
             </section>
 
-            <!-- Results Section -->
-            <section class="card collapsible">
+            <!-- Settings Section -->
+            <section class="card collapsible collapsed">
                 <div class="card-header" onclick="toggleSection(this)">
-                    <h2>📊 Analysis Results</h2>
+                    <h2>⚙️ API Settings</h2>
                     <span class="collapse-icon">▼</span>
                 </div>
                 <div class="card-content">
-                    <!-- Search Box -->
-                    <div class="form-group search-box">
-                        <input type="text" id="results-search" placeholder="🔍 Search by URL...">
+                    <div class="form-group">
+                        <label for="api-key">Lumen API Key</label>
+                        <div class="input-with-button">
+                            <input type="password" id="api-key" placeholder="Enter your Lumen API authentication token">
+                            <button type="button" id="toggle-key" class="btn btn-secondary">Show</button>
+                        </div>
                     </div>
 
-                    <div id="results-container" class="results-container">
-                        <p class="empty-state">No analysis results yet. Add URLs and click "Check All Now" to analyze.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="update-days">Update Frequency (Days)</label>
+                            <input type="number" id="update-days" min="0" max="365" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="update-hours">Update Frequency (Hours)</label>
+                            <input type="number" id="update-hours" min="0" max="23" value="1" placeholder="1">
+                        </div>
                     </div>
-                </div>
-            </section>
+                    <p class="frequency-display">Checking every: <span id="frequency-text">1 hour(s)</span></p>
 
-            <!-- Auto-update Status -->
-            <section class="card collapsible">
-                <div class="card-header" onclick="toggleSection(this)">
-                    <h2>🔄 Auto-Update Status</h2>
-                    <span class="collapse-icon">▼</span>
-                </div>
-                <div class="card-content">
-                    <div class="status-info">
-                        <p>Status: <span id="auto-update-status" class="status-badge status-stopped">Stopped</span></p>
-                        <p>Next check: <span id="next-check-time">N/A</span></p>
-                        <p>Last check: <span id="last-check-time">Never</span></p>
-                    </div>
-                    <div class="status-actions">
-                        <button type="button" id="start-auto" class="btn btn-success">Start Auto-Update</button>
-                        <button type="button" id="stop-auto" class="btn btn-danger" disabled>Stop Auto-Update</button>
-                    </div>
+                    <button type="button" id="save-settings" class="btn btn-primary">Save Settings</button>
+                    <span id="settings-status" class="status-message"></span>
                 </div>
             </section>
         </main>
