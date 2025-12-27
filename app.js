@@ -319,7 +319,56 @@ function saveResults(results) {
     localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify(results));
 }
 
-// Render results with sorting and filtering
+// Get check session key (group by minute)
+function getCheckSessionKey(dateString) {
+    if (!dateString) return 'unknown';
+    const date = new Date(dateString);
+    // Round to the nearest minute for grouping
+    date.setSeconds(0, 0);
+    return date.toISOString();
+}
+
+// Render single result item
+function renderResultItem(url, result) {
+    const statusClass = result.error ? 'warning' : (result.notices && result.notices.length > 0 ? 'abused' : 'clean');
+    const statusText = result.error ? 'Error' : (result.notices && result.notices.length > 0 ? 'Notices Found' : 'Clean');
+
+    let noticesHtml = '';
+    if (result.notices && result.notices.length > 0) {
+        noticesHtml = `
+            <div class="result-notices">
+                <strong>Found ${result.notices.length} notice(s):</strong>
+                ${result.notices.slice(0, 5).map(notice => `
+                    <div class="notice-item">
+                        <span class="notice-type">${escapeHtml(notice.type || 'Unknown')}</span>
+                        <span class="notice-date">${notice.date_received ? formatDate(notice.date_received) : 'Unknown date'}</span>
+                        ${notice.title ? `<div>${escapeHtml(notice.title)}</div>` : ''}
+                        <a class="notice-link" href="${LUMEN_API_BASE}/notices/${notice.id}" target="_blank">View Notice #${notice.id}</a>
+                    </div>
+                `).join('')}
+                ${result.notices.length > 5 ? `<p class="notice-item">... and ${result.notices.length - 5} more notices</p>` : ''}
+            </div>
+        `;
+    }
+
+    return `
+        <div class="result-item ${statusClass}">
+            <div class="result-header">
+                <span class="result-url">${escapeHtml(url)}</span>
+                <span class="result-badge ${statusClass}">${statusText}</span>
+            </div>
+            <div class="result-details">
+                ${result.error
+                    ? `Error: ${escapeHtml(result.error)}`
+                    : `Total notices found: ${result.totalCount || 0}`
+                }
+            </div>
+            ${noticesHtml}
+        </div>
+    `;
+}
+
+// Render results with sorting and filtering, grouped by check session
 function renderResults(results, searchQuery = '') {
     let urls = Object.keys(results);
 
@@ -339,60 +388,66 @@ function renderResults(results, searchQuery = '') {
         return;
     }
 
-    // Sort: violations first, then by date (newest first)
-    urls.sort((a, b) => {
-        const resultA = results[a];
-        const resultB = results[b];
-
-        // First: sort by violation status (abused first)
-        const hasNoticesA = resultA.notices && resultA.notices.length > 0;
-        const hasNoticesB = resultB.notices && resultB.notices.length > 0;
-
-        if (hasNoticesA && !hasNoticesB) return -1;
-        if (!hasNoticesA && hasNoticesB) return 1;
-
-        // Then: sort by date (newest first)
-        const dateA = new Date(resultA.checkedAt || 0);
-        const dateB = new Date(resultB.checkedAt || 0);
-        return dateB - dateA;
+    // Group by check session (minute)
+    const groups = {};
+    urls.forEach(url => {
+        const result = results[url];
+        const sessionKey = getCheckSessionKey(result.checkedAt);
+        if (!groups[sessionKey]) {
+            groups[sessionKey] = [];
+        }
+        groups[sessionKey].push({ url, result });
     });
 
-    elements.resultsContainer.innerHTML = urls.map(url => {
-        const result = results[url];
-        const statusClass = result.error ? 'warning' : (result.notices.length > 0 ? 'abused' : 'clean');
-        const statusText = result.error ? 'Error' : (result.notices.length > 0 ? 'Notices Found' : 'Clean');
+    // Sort sessions by date (newest first)
+    const sortedSessions = Object.keys(groups).sort((a, b) => {
+        if (a === 'unknown') return 1;
+        if (b === 'unknown') return -1;
+        return new Date(b) - new Date(a);
+    });
 
-        let noticesHtml = '';
-        if (result.notices && result.notices.length > 0) {
-            noticesHtml = `
-                <div class="result-notices">
-                    <strong>Found ${result.notices.length} notice(s):</strong>
-                    ${result.notices.slice(0, 5).map(notice => `
-                        <div class="notice-item">
-                            <span class="notice-type">${escapeHtml(notice.type || 'Unknown')}</span>
-                            <span class="notice-date">${notice.date_received ? formatDate(notice.date_received) : 'Unknown date'}</span>
-                            ${notice.title ? `<div>${escapeHtml(notice.title)}</div>` : ''}
-                            <a class="notice-link" href="${LUMEN_API_BASE}/notices/${notice.id}" target="_blank">View Notice #${notice.id}</a>
-                        </div>
-                    `).join('')}
-                    ${result.notices.length > 5 ? `<p class="notice-item">... and ${result.notices.length - 5} more notices</p>` : ''}
-                </div>
-            `;
-        }
+    // Within each session, sort: violations first
+    sortedSessions.forEach(sessionKey => {
+        groups[sessionKey].sort((a, b) => {
+            const hasNoticesA = a.result.notices && a.result.notices.length > 0;
+            const hasNoticesB = b.result.notices && b.result.notices.length > 0;
+
+            if (hasNoticesA && !hasNoticesB) return -1;
+            if (!hasNoticesA && hasNoticesB) return 1;
+            return 0;
+        });
+    });
+
+    // Count violations per session
+    const getSessionStats = (items) => {
+        const violations = items.filter(item => item.result.notices && item.result.notices.length > 0).length;
+        const clean = items.filter(item => !item.result.error && (!item.result.notices || item.result.notices.length === 0)).length;
+        const errors = items.filter(item => item.result.error).length;
+        return { violations, clean, errors, total: items.length };
+    };
+
+    // Render grouped results
+    elements.resultsContainer.innerHTML = sortedSessions.map(sessionKey => {
+        const items = groups[sessionKey];
+        const stats = getSessionStats(items);
+        const sessionDate = sessionKey === 'unknown' ? 'Unknown date' : formatDate(sessionKey);
 
         return `
-            <div class="result-item ${statusClass}">
-                <div class="result-header">
-                    <span class="result-url">${escapeHtml(url)}</span>
-                    <span class="result-badge ${statusClass}">${statusText}</span>
+            <div class="check-session">
+                <div class="session-header">
+                    <div class="session-date">
+                        <span class="session-icon">📅</span>
+                        <span>${sessionDate}</span>
+                    </div>
+                    <div class="session-stats">
+                        ${stats.violations > 0 ? `<span class="stat-badge stat-violations">${stats.violations} violations</span>` : ''}
+                        ${stats.clean > 0 ? `<span class="stat-badge stat-clean">${stats.clean} clean</span>` : ''}
+                        ${stats.errors > 0 ? `<span class="stat-badge stat-errors">${stats.errors} errors</span>` : ''}
+                    </div>
                 </div>
-                <div class="result-details">
-                    ${result.error
-                        ? `Error: ${escapeHtml(result.error)}`
-                        : `Total notices found: ${result.totalCount || 0} | Checked: ${formatDate(result.checkedAt)}`
-                    }
+                <div class="session-results">
+                    ${items.map(item => renderResultItem(item.url, item.result)).join('')}
                 </div>
-                ${noticesHtml}
             </div>
         `;
     }).join('');

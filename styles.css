@@ -396,8 +396,76 @@ textarea {
 
 /* Results Container */
 .results-container {
-    max-height: 500px;
+    max-height: 600px;
     overflow-y: auto;
+}
+
+/* Check Session Block */
+.check-session {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.check-session:last-child {
+    margin-bottom: 0;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+    color: white;
+}
+
+.session-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.session-icon {
+    font-size: 1.1rem;
+}
+
+.session-stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.stat-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.stat-violations {
+    background: rgba(220, 38, 38, 0.9);
+    color: white;
+}
+
+.stat-clean {
+    background: rgba(22, 163, 74, 0.9);
+    color: white;
+}
+
+.stat-errors {
+    background: rgba(245, 158, 11, 0.9);
+    color: white;
+}
+
+.session-results {
+    padding: 16px;
 }
 
 .result-item {
