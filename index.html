@@ -14,31 +14,45 @@
         </header>
 
         <main>
-            <!-- Results Section (First, Not Collapsible) -->
+            <!-- 1. Results Section (Always Open) -->
             <section class="card results-card">
                 <div class="card-header-static">
                     <h2>📊 Analysis Results</h2>
                 </div>
                 <div class="card-content">
-                    <!-- Search Box -->
                     <div class="form-group search-box">
                         <input type="text" id="results-search" placeholder="🔍 Search by URL...">
                     </div>
-
                     <div id="results-container" class="results-container">
                         <p class="empty-state">No analysis results yet. Add URLs and click "Check All Now" to analyze.</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Add URL Section -->
+            <!-- 2. Monitored URLs Section -->
+            <section class="card collapsible collapsed">
+                <div class="card-header" onclick="toggleSection(this)">
+                    <h2>📋 Monitored URLs</h2>
+                    <span class="collapse-icon">▼</span>
+                </div>
+                <div class="card-content">
+                    <div class="section-actions">
+                        <button type="button" id="check-all" class="btn btn-secondary">Check All Now</button>
+                        <button type="button" id="clear-all" class="btn btn-danger">Clear All</button>
+                    </div>
+                    <div id="urls-list" class="urls-list">
+                        <p class="empty-state">No URLs added yet. Add a URL above to start monitoring.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Add URL Section -->
             <section class="card collapsible collapsed">
                 <div class="card-header" onclick="toggleSection(this)">
                     <h2>➕ Add URLs to Monitor</h2>
                     <span class="collapse-icon">▼</span>
                 </div>
                 <div class="card-content">
-                    <!-- Single URL Input -->
                     <div class="form-group">
                         <label for="new-url">Single URL</label>
                         <div class="input-with-button">
@@ -52,7 +66,6 @@
                         <span>OR</span>
                     </div>
 
-                    <!-- Bulk URL Input -->
                     <div class="form-group">
                         <label for="bulk-urls">Add Multiple URLs (one per line)</label>
                         <textarea id="bulk-urls" rows="6" placeholder="https://example.com/page1
@@ -65,7 +78,7 @@ https://example.com/page3"></textarea>
                 </div>
             </section>
 
-            <!-- Auto-update Status -->
+            <!-- 4. Auto-update Status -->
             <section class="card collapsible collapsed">
                 <div class="card-header" onclick="toggleSection(this)">
                     <h2>🔄 Auto-Update Status</h2>
@@ -84,25 +97,7 @@ https://example.com/page3"></textarea>
                 </div>
             </section>
 
-            <!-- Monitored URLs Section -->
-            <section class="card collapsible collapsed">
-                <div class="card-header" onclick="toggleSection(this)">
-                    <h2>📋 Monitored URLs</h2>
-                    <span class="collapse-icon">▼</span>
-                </div>
-                <div class="card-content">
-                    <div class="section-actions">
-                        <button type="button" id="check-all" class="btn btn-secondary">Check All Now</button>
-                        <button type="button" id="clear-all" class="btn btn-danger">Clear All</button>
-                    </div>
-
-                    <div id="urls-list" class="urls-list">
-                        <p class="empty-state">No URLs added yet. Add a URL above to start monitoring.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Settings Section -->
+            <!-- 5. Settings Section -->
             <section class="card collapsible collapsed">
                 <div class="card-header" onclick="toggleSection(this)">
                     <h2>⚙️ API Settings</h2>
