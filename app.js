@@ -32,6 +32,9 @@ const elements = {
     newUrl: document.getElementById('new-url'),
     addUrl: document.getElementById('add-url'),
     addUrlStatus: document.getElementById('add-url-status'),
+    bulkUrls: document.getElementById('bulk-urls'),
+    addBulkUrls: document.getElementById('add-bulk-urls'),
+    bulkUrlStatus: document.getElementById('bulk-url-status'),
     urlsList: document.getElementById('urls-list'),
     checkAll: document.getElementById('check-all'),
     clearAll: document.getElementById('clear-all'),
@@ -173,6 +176,70 @@ function addUrl() {
     renderUrlsList(urls);
     elements.newUrl.value = '';
     showStatus(elements.addUrlStatus, 'URL added successfully!', 'success');
+}
+
+// Add multiple URLs from textarea
+function addBulkUrls() {
+    const bulkText = elements.bulkUrls.value.trim();
+
+    if (!bulkText) {
+        showStatus(elements.bulkUrlStatus, 'Please enter at least one URL', 'error');
+        return;
+    }
+
+    // Split by newlines and filter empty lines
+    const lines = bulkText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+    if (lines.length === 0) {
+        showStatus(elements.bulkUrlStatus, 'No valid URLs found', 'error');
+        return;
+    }
+
+    const urls = getStoredUrls();
+    let addedCount = 0;
+    let duplicateCount = 0;
+    let invalidCount = 0;
+
+    for (const line of lines) {
+        // Validate URL format
+        try {
+            new URL(line);
+        } catch {
+            invalidCount++;
+            continue;
+        }
+
+        // Check for duplicates
+        if (urls.some(u => u.url === line)) {
+            duplicateCount++;
+            continue;
+        }
+
+        urls.push({
+            url: line,
+            addedAt: new Date().toISOString(),
+            lastChecked: null
+        });
+        addedCount++;
+    }
+
+    if (addedCount > 0) {
+        saveUrls(urls);
+        renderUrlsList(urls);
+        elements.bulkUrls.value = '';
+
+        let message = `Added ${addedCount} URL(s)`;
+        if (duplicateCount > 0) message += `, ${duplicateCount} duplicate(s) skipped`;
+        if (invalidCount > 0) message += `, ${invalidCount} invalid skipped`;
+
+        showStatus(elements.bulkUrlStatus, message, 'success');
+    } else {
+        let message = 'No URLs added';
+        if (duplicateCount > 0) message += `: ${duplicateCount} duplicate(s)`;
+        if (invalidCount > 0) message += `${duplicateCount > 0 ? ',' : ':'} ${invalidCount} invalid`;
+
+        showStatus(elements.bulkUrlStatus, message, 'error');
+    }
 }
 
 // Remove a URL
@@ -576,6 +643,9 @@ function setupEventListeners() {
             addUrl();
         }
     });
+
+    // Add bulk URLs on button click
+    elements.addBulkUrls.addEventListener('click', addBulkUrls);
 
     // Check all URLs
     elements.checkAll.addEventListener('click', checkAllUrls);

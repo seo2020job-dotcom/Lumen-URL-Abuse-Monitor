@@ -43,15 +43,32 @@
 
             <!-- Add URL Section -->
             <section class="card add-url-section">
-                <h2>➕ Add URL to Monitor</h2>
+                <h2>➕ Add URLs to Monitor</h2>
+
+                <!-- Single URL Input -->
                 <div class="form-group">
-                    <label for="new-url">Website URL</label>
+                    <label for="new-url">Single URL</label>
                     <div class="input-with-button">
                         <input type="url" id="new-url" placeholder="https://example.com/page">
                         <button type="button" id="add-url" class="btn btn-primary">Add URL</button>
                     </div>
                 </div>
                 <span id="add-url-status" class="status-message"></span>
+
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+
+                <!-- Bulk URL Input -->
+                <div class="form-group">
+                    <label for="bulk-urls">Add Multiple URLs (one per line)</label>
+                    <textarea id="bulk-urls" rows="6" placeholder="https://example.com/page1
+https://example.com/page2
+https://example.com/page3"></textarea>
+                    <small>Enter one URL per line. Invalid URLs will be skipped.</small>
+                </div>
+                <button type="button" id="add-bulk-urls" class="btn btn-primary">Add All URLs</button>
+                <span id="bulk-url-status" class="status-message"></span>
             </section>
 
             <!-- Monitored URLs Section -->
