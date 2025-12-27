@@ -57,10 +57,75 @@ header h1 {
 .card {
     background: var(--card-bg);
     border-radius: 12px;
-    padding: 24px;
     margin-bottom: 20px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.card.collapsible {
+    padding: 0;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.card-header:hover {
+    background-color: var(--bg-color);
+}
+
+.card-header h2 {
+    margin-bottom: 0;
+}
+
+.collapse-icon {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+}
+
+.card.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.card-content {
+    padding: 0 24px 24px 24px;
+    transition: all 0.3s ease;
+}
+
+.card.collapsed .card-content {
+    display: none;
+}
+
+.section-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* Search Box */
+.search-box {
+    margin-bottom: 16px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: var(--bg-color);
+}
+
+.search-box input:focus {
+    background: var(--card-bg);
 }
 
 .card h2 {

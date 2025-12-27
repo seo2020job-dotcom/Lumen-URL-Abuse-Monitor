@@ -39,12 +39,19 @@ const elements = {
     checkAll: document.getElementById('check-all'),
     clearAll: document.getElementById('clear-all'),
     resultsContainer: document.getElementById('results-container'),
+    resultsSearch: document.getElementById('results-search'),
     autoUpdateStatus: document.getElementById('auto-update-status'),
     nextCheckTime: document.getElementById('next-check-time'),
     lastCheckTime: document.getElementById('last-check-time'),
     startAuto: document.getElementById('start-auto'),
     stopAuto: document.getElementById('stop-auto')
 };
+
+// Toggle section collapse
+function toggleSection(header) {
+    const card = header.closest('.card');
+    card.classList.toggle('collapsed');
+}
 
 // Initialize the application
 function init() {
@@ -312,14 +319,43 @@ function saveResults(results) {
     localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify(results));
 }
 
-// Render results
-function renderResults(results) {
-    const urls = Object.keys(results);
+// Render results with sorting and filtering
+function renderResults(results, searchQuery = '') {
+    let urls = Object.keys(results);
 
     if (urls.length === 0) {
         elements.resultsContainer.innerHTML = '<p class="empty-state">No analysis results yet. Add URLs and click "Check All Now" to analyze.</p>';
         return;
     }
+
+    // Filter by search query
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        urls = urls.filter(url => url.toLowerCase().includes(query));
+    }
+
+    if (urls.length === 0) {
+        elements.resultsContainer.innerHTML = '<p class="empty-state">No results matching your search.</p>';
+        return;
+    }
+
+    // Sort: violations first, then by date (newest first)
+    urls.sort((a, b) => {
+        const resultA = results[a];
+        const resultB = results[b];
+
+        // First: sort by violation status (abused first)
+        const hasNoticesA = resultA.notices && resultA.notices.length > 0;
+        const hasNoticesB = resultB.notices && resultB.notices.length > 0;
+
+        if (hasNoticesA && !hasNoticesB) return -1;
+        if (!hasNoticesA && hasNoticesB) return 1;
+
+        // Then: sort by date (newest first)
+        const dateA = new Date(resultA.checkedAt || 0);
+        const dateB = new Date(resultB.checkedAt || 0);
+        return dateB - dateA;
+    });
 
     elements.resultsContainer.innerHTML = urls.map(url => {
         const result = results[url];
@@ -360,6 +396,13 @@ function renderResults(results) {
             </div>
         `;
     }).join('');
+}
+
+// Filter results by search
+function filterResults() {
+    const searchQuery = elements.resultsSearch.value.trim();
+    const results = getStoredResults();
+    renderResults(results, searchQuery);
 }
 
 // Check all URLs for abuse
@@ -656,6 +699,9 @@ function setupEventListeners() {
     // Auto-update controls
     elements.startAuto.addEventListener('click', startAutoUpdate);
     elements.stopAuto.addEventListener('click', stopAutoUpdate);
+
+    // Search results
+    elements.resultsSearch.addEventListener('input', filterResults);
 }
 
 // Initialize when DOM is ready
